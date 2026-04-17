@@ -1,0 +1,4 @@
+fastapi
+reportlab
+uvicorn
+python-multipart
