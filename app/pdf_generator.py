@@ -1,8 +1,9 @@
 import io
 from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_CENTER, TA_LEFT
+from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+from reportlab.lib import colors
 from .schemas import ResumeData
 
 def generate_resume_pdf(data: ResumeData) -> io.BytesIO:
@@ -23,17 +24,17 @@ def generate_resume_pdf(data: ResumeData) -> io.BytesIO:
         'NameStyle',
         parent=styles['Heading1'],
         fontName='Helvetica-Bold',
-        fontSize=18,
-        spaceAfter=6,
+        fontSize=24,
+        spaceAfter=8,
         alignment=TA_CENTER
     )
     
     title_style = ParagraphStyle(
         'TitleStyle',
         parent=styles['Normal'],
-        fontName='Helvetica',
-        fontSize=12,
-        spaceAfter=12,
+        fontName='Helvetica-Bold',
+        fontSize=11,
+        spaceAfter=4,
         alignment=TA_CENTER
     )
     
@@ -50,11 +51,12 @@ def generate_resume_pdf(data: ResumeData) -> io.BytesIO:
         'HeadingStyle',
         parent=styles['Heading2'],
         fontName='Helvetica-Bold',
-        fontSize=14,
-        spaceAfter=6,
-        spaceBefore=12,
+        fontSize=12,
+        spaceAfter=2,
+        spaceBefore=10,
         bottomPadding=0,
-        alignment=TA_LEFT
+        alignment=TA_LEFT,
+        textTransform='uppercase'
     )
     
     body_style = ParagraphStyle(
@@ -62,7 +64,18 @@ def generate_resume_pdf(data: ResumeData) -> io.BytesIO:
         parent=styles['Normal'],
         fontName='Helvetica',
         fontSize=10,
-        spaceAfter=6
+        spaceAfter=2,
+        spaceBefore=2
+    )
+
+    right_body_style = ParagraphStyle(
+        'RightBodyStyle',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=10,
+        spaceAfter=2,
+        spaceBefore=2,
+        alignment=TA_RIGHT
     )
     
     bullet_style = ParagraphStyle(
@@ -70,8 +83,9 @@ def generate_resume_pdf(data: ResumeData) -> io.BytesIO:
         parent=styles['Normal'],
         fontName='Helvetica',
         fontSize=10,
-        leftIndent=15,
-        spaceAfter=3
+        leftIndent=12,
+        spaceAfter=2,
+        spaceBefore=2
     )
     
     story = []
@@ -84,55 +98,84 @@ def generate_resume_pdf(data: ResumeData) -> io.BytesIO:
     if data.email: contact_parts.append(data.email)
     if data.phone: contact_parts.append(data.phone)
     if data.linkedin: contact_parts.append(data.linkedin)
-    if data.github: contact_parts.append(data.github)
     if data.website: contact_parts.append(data.website)
     
     if contact_parts:
         contact_str = " | ".join(contact_parts)
         story.append(Paragraph(contact_str, contact_style))
         
-    story.append(Spacer(1, 12))
+    def add_section_heading(title):
+        story.append(Paragraph(title, heading_style))
+        line = Table([['']], colWidths=[540], style=[
+            ('LINEABOVE', (0,0), (-1,0), 1, colors.black),
+            ('TOPPADDING', (0,0), (-1,0), 0),
+            ('BOTTOMPADDING', (0,0), (-1,0), 0)
+        ])
+        story.append(line)
+        story.append(Spacer(1, 4))
     
     # Summary
     if data.summary:
-        story.append(Paragraph("SUMMARY", heading_style))
+        add_section_heading("PROFESSIONAL SUMMARY")
         story.append(Paragraph(data.summary, body_style))
-        
-    # Skills
-    if data.skills:
-        story.append(Paragraph("SKILLS", heading_style))
-        skills_str = ", ".join(data.skills)
-        story.append(Paragraph(skills_str, body_style))
+        story.append(Spacer(1, 6))
         
     # Experience
     if data.experience:
-        story.append(Paragraph("EXPERIENCE", heading_style))
+        add_section_heading("WORK EXPERIENCE")
         for exp in data.experience:
-            exp_header = f"<b>{exp.company}</b> - <i>{exp.role}</i> ({exp.duration})"
-            story.append(Paragraph(exp_header, body_style))
+            story.append(Paragraph(f"<b>{exp.role}</b>", body_style))
+            
+            t = Table(
+                [[Paragraph(exp.company, body_style), Paragraph(exp.duration, right_body_style)]],
+                colWidths=[400, 140],
+                style=[
+                    ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                    ('TOPPADDING', (0, 0), (-1, -1), 0),
+                    ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+                    ('LEFTPADDING', (0, 0), (-1, -1), 0),
+                    ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+                ]
+            )
+            story.append(t)
             
             for point in exp.points:
                 story.append(Paragraph(f"• {point}", bullet_style))
-            story.append(Spacer(1, 6))
-            
-    # Projects
-    if data.projects:
-        story.append(Paragraph("PROJECTS", heading_style))
-        for proj in data.projects:
-            proj_header = f"<b>{proj.name}</b>"
-            story.append(Paragraph(proj_header, body_style))
-            
-            for point in proj.points:
-                story.append(Paragraph(f"• {point}", bullet_style))
-            story.append(Spacer(1, 6))
+            story.append(Spacer(1, 8))
             
     # Education
     if data.education:
-        story.append(Paragraph("EDUCATION", heading_style))
+        add_section_heading("EDUCATION")
         for edu in data.education:
-            edu_str = f"<b>{edu.institution}</b> - {edu.degree} ({edu.year})"
-            story.append(Paragraph(edu_str, body_style))
-            story.append(Spacer(1, 6))
+            story.append(Paragraph(f"<b>{edu.degree}</b>", body_style))
+            
+            t = Table(
+                [[Paragraph(edu.institution, body_style), Paragraph(edu.year, right_body_style)]],
+                colWidths=[400, 140],
+                style=[
+                    ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                    ('TOPPADDING', (0, 0), (-1, -1), 0),
+                    ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+                    ('LEFTPADDING', (0, 0), (-1, -1), 0),
+                    ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+                ]
+            )
+            story.append(t)
+            story.append(Spacer(1, 8))
+            
+    # Skills
+    if data.skills:
+        add_section_heading("SKILLS")
+        for skill in data.skills:
+            story.append(Paragraph(f"• {skill}", bullet_style))
+        story.append(Spacer(1, 8))
+        
+    # Certifications
+    if data.certifications:
+        add_section_heading("CERTIFICATIONS")
+        for cert in data.certifications:
+            story.append(Paragraph(f"• {cert}", bullet_style))
+        story.append(Spacer(1, 8))
             
     doc.build(story)
     

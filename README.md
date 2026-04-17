@@ -55,43 +55,50 @@ Send a POST request to `/generate-resume` to generate a PDF.
 curl -X POST http://127.0.0.1:8000/generate-resume \
 -H "Content-Type: application/json" \
 -d '{
-  "name": "Jane Doe",
-  "title": "Senior Backend Engineer",
-  "email": "jane@example.com",
-  "phone": "+1-555-555-5555",
-  "website": "janedoe.com",
-  "linkedin": "linkedin.com/in/janedoe",
-  "github": "github.com/janedoe",
-  "summary": "Experienced backend engineer with a strong track record of designing scalable systems and driving team success. Passionate about Python, cloud architecture, and building data-driven products.",
+  "name": "Michael Harris",
+  "title": "Digital Marketing | SEO | SEM | Content Marketing",
+  "email": "michael.harris@email.com",
+  "phone": "+61 412 345 678",
+  "linkedin": "linkedin.com/in/michaelharris",
+  "website": "michaelharris.com",
+  "summary": "Results-oriented marketing professional with over 5 years of experience in digital marketing, brand strategy, and content creation. Proven ability to drive brand growth, increase online engagement, and deliver data-driven results. Expert in utilizing digital tools and analytics to optimize marketing campaigns and achieve business objectives.",
   "skills": [
-    "Python", "FastAPI", "Docker", "PostgreSQL", "AWS"
+    "Digital Marketing Strategy, SEO & SEM, Google Analytics & SEMrush",
+    "Social Media Marketing, Content Creation & Copywriting, Budget Management, Data Analysis"
   ],
   "experience": [
     {
-      "company": "Tech Corp",
-      "role": "Senior Engineer",
-      "duration": "2020 - Present",
+      "role": "Marketing Manager",
+      "company": "XYZ Corporation, Sydney, NSW",
+      "duration": "January 2022 – Present",
       "points": [
-        "Architected scalable microservices.",
-        "Improved system performance by 40%."
+        "Lead a team of 5 in creating and executing digital marketing strategies across multiple platforms, including social media, SEO, and email campaigns.",
+        "Achieved a 35% increase in website traffic and 50% boost in social media engagement within the first year.",
+        "Managed a marketing budget of $200,000, ensuring maximum ROI through cost-effective advertising strategies."
       ]
-    }
-  ],
-  "projects": [
+    },
     {
-      "name": "Open Source Tooling",
+      "role": "Digital Marketing Specialist",
+      "company": "ABC Solutions, Melbourne, VIC",
+      "duration": "June 2018 – December 2021",
       "points": [
-        "Created an open-source library used by thousands of developers.",
-        "Maintained CI/CD pipelines and unit test coverage above 90%."
+        "Developed and executed SEO and SEM strategies that increased organic search traffic by 25%.",
+        "Created and managed Google Ads and Facebook Ads campaigns, resulting in a 20% increase in qualified leads.",
+        "Produced engaging content for blogs, newsletters, and social media platforms to attract target audiences."
       ]
     }
   ],
   "education": [
     {
-      "institution": "State University",
-      "degree": "B.S. in Computer Science",
-      "year": "2016"
+      "degree": "Bachelor of Marketing",
+      "institution": "University of Sydney, Sydney, NSW",
+      "year": "Graduated: 2018"
     }
+  ],
+  "certifications": [
+    "Google Analytics Certified",
+    "Facebook Blueprint Certification",
+    "HubSpot Inbound Marketing Certification"
   ]
 }' -o resume.pdf
 ```
