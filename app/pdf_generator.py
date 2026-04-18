@@ -1,6 +1,6 @@
 import io
 from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, KeepInFrame
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from reportlab.lib import colors
@@ -14,7 +14,10 @@ def generate_resume_pdf(data: ResumeData) -> io.BytesIO:
         rightMargin=36,
         leftMargin=36,
         topMargin=36,
-        bottomMargin=36
+        bottomMargin=36,
+        title=f"{data.name} - Resume",
+        author=data.name,
+        creator="Resume Generator API"
     )
     
     styles = getSampleStyleSheet()
@@ -177,7 +180,17 @@ def generate_resume_pdf(data: ResumeData) -> io.BytesIO:
             story.append(Paragraph(f"• {cert}", bullet_style))
         story.append(Spacer(1, 8))
             
-    doc.build(story)
+    frame_width = letter[0] - 72
+    frame_height = letter[1] - 72
+    
+    shrink_frame = KeepInFrame(
+        maxWidth=frame_width,
+        maxHeight=frame_height,
+        content=story,
+        mode='shrink'
+    )
+    
+    doc.build([shrink_frame])
     
     buffer.seek(0)
     return buffer
